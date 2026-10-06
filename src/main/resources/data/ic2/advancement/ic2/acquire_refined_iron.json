@@ -1,0 +1,37 @@
+{
+  "parent": "ic2:ic2/root",
+  "display": {
+    "icon": {
+      "id": "ic2:refined_iron_ingot"
+    },
+    "title": {
+      "translate": "advancements.ic2.acquireRefinedIron"
+    },
+    "description": {
+      "translate": "advancements.ic2.acquireRefinedIron.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "items": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ic2:refined_iron_ingot"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "items"
+    ]
+  ]
+}

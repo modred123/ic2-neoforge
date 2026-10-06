@@ -1,0 +1,31 @@
+{
+  "parent": "ic2:ic2/build_jetpack",
+  "display": {
+    "icon": {
+      "id": "ic2:jetpack"
+    },
+    "title": {
+      "translate": "advancements.ic2.fallWithJetpack"
+    },
+    "description": {
+      "translate": "advancements.ic2.fallWithJetpack.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "code": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "code"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "parent": "ic2:ic2/acquire_insulated_cable",
+  "display": {
+    "icon": {
+      "id": "ic2:insulated_copper_cable"
+    },
+    "title": {
+      "translate": "advancements.ic2.getZapped"
+    },
+    "description": {
+      "translate": "advancements.ic2.getZapped.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "code": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "code"
+    ]
+  ],
+  "rewards": {
+    "experience": 50
+  }
+}

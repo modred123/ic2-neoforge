@@ -1,0 +1,36 @@
+/*
+ * Decompiled with CFR 0.152.
+ * 
+ * Could not load the following classes:
+ *  net.minecraft.inventory.EntityEquipmentSlot
+ *  net.minecraft.world.item.ItemStack
+ */
+package ic2.core.item.armor;
+
+import ic2.core.item.armor.ItemArmorElectric;
+import ic2.core.profile.NotClassic;
+import ic2.core.ref.ItemName;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
+
+@NotClassic
+public class ItemArmorEnergypack
+extends ItemArmorElectric {
+    public ItemArmorEnergypack() {
+        super(ItemName.energy_pack, "energypack", net.minecraft.world.entity.EquipmentSlot.CHEST, 2000000.0, 1000.0, 3);
+    }
+
+    @Override
+    public boolean canProvideEnergy(ItemStack stack) {
+        return true;
+    }
+
+        public double getDamageAbsorptionRatio() {
+        return 0.0;
+    }
+
+        public int getEnergyPerDamage() {
+        return 0;
+    }
+}
+

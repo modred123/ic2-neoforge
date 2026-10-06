@@ -1,0 +1,9 @@
+# 行尾统一为 LF
+* text=auto eol=lf
+
+# 但以下类型按二进制处理，不做行尾转换
+*.png binary
+*.jar binary
+*.ogg binary
+*.zip binary
+*.class binary

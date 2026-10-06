@@ -1,0 +1,7 @@
+{
+  "message_id": "nuke",
+  "exhaustion": 0.1,
+  "scaling": "always",
+  "effects": "hurt",
+  "death_message_type": "default"
+}

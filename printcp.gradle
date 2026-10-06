@@ -1,0 +1,7 @@
+gradle.projectsEvaluated {
+    rootProject.tasks.register('printClasspath') {
+        doLast {
+            println rootProject.sourceSets.main.runtimeClasspath.asPath
+        }
+    }
+}

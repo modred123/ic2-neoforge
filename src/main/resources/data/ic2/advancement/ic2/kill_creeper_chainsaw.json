@@ -1,0 +1,31 @@
+{
+  "parent": "ic2:ic2/build_chainsaw",
+  "display": {
+    "icon": {
+      "id": "ic2:chainsaw"
+    },
+    "title": {
+      "translate": "advancements.ic2.killCreeperChainsaw"
+    },
+    "description": {
+      "translate": "advancements.ic2.killCreeperChainsaw.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "code": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "code"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  }
+}

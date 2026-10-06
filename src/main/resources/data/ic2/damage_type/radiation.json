@@ -1,0 +1,7 @@
+{
+  "message_id": "radiation",
+  "exhaustion": 0.0,
+  "scaling": "always",
+  "effects": "hurt",
+  "death_message_type": "default"
+}

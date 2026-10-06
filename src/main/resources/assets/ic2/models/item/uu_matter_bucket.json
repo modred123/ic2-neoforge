@@ -1,0 +1,5 @@
+{
+  "parent": "neoforge:item/bucket",
+  "fluid": "ic2:uu_matter",
+  "loader": "neoforge:fluid_container"
+}

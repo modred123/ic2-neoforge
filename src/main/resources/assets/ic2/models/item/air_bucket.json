@@ -1,0 +1,5 @@
+{
+  "parent": "neoforge:item/bucket",
+  "fluid": "ic2:air",
+  "loader": "neoforge:fluid_container"
+}

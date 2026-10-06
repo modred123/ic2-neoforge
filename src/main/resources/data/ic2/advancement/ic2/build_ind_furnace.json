@@ -1,0 +1,37 @@
+{
+  "parent": "ic2:ic2/build_elec_furnace",
+  "display": {
+    "icon": {
+      "id": "ic2:induction_furnace"
+    },
+    "title": {
+      "translate": "advancements.ic2.buildIndFurnace"
+    },
+    "description": {
+      "translate": "advancements.ic2.buildIndFurnace.desc"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "items": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "ic2:induction_furnace"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "items"
+    ]
+  ]
+}
