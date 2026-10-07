@@ -29,7 +29,6 @@
 - **核熔毁成就**：
   - 触发条件由 `minecraft:inventory_changed`（拿到反应堆舱即解锁，语义不符）改为
     `minecraft:impossible`，并在反应堆真正熔毁时对 20 格内最近玩家授予（代码触发）
-  - 命名定稿：英文 `Atomic Boom`、简中"核电，轻而易举！"、繁中"核電，輕而易舉！"
 - 绝缘电缆成就更名为"电缆就绪 / Cable Ready"
 
 ---
