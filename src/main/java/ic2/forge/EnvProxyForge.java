@@ -321,30 +321,37 @@ implements EnvProxy {
                                 resourceLocation.getNamespace(), resourceLocation.getPath())))
                 .icon(supplier)
                 .displayItems((params, output) -> {
-                    try {
-                        for (Item item : BuiltInRegistries.ITEM) {
-                            if (BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("ic2")) {
-                                // 第三十七轮：经典版（classic_*）物品与普通版**同名同图标**（上游就没给独立名称/贴图），
-                                // 在创造栏里表现为"同一个 MFSU 出现两次"。1.12.2 的创造栏里没有它们 —— 详见
-                                // Ic2CreativeVariants.HIDDEN_IN_CREATIVE_TAB 的注释。
-                                if (Ic2CreativeVariants.isHiddenInCreativeTab(item)) {
-                                    continue;
-                                }
-                                output.accept(item);
-                                /*
-                                 * 第三十三轮：补回 1.12.2 创造栏里的"满电版本"条目 ——
-                                 * 四个电池类物品（充电电池/高级充电电池/能量水晶/兰波顿水晶）与
-                                 * 四台储电机器（储电箱/CESU/MFE/MFSU）。1.21.1 的
-                                 * Item.fillItemCategory 已被移除，只能在 displayItems 里追加。
-                                 */
-                                ItemStack fullVariant = Ic2CreativeVariants.getFullVariant(item);
-                                if (!fullVariant.isEmpty()) {
-                                    output.accept(fullVariant);
-                                }
-                            }
+                    for (Item item : BuiltInRegistries.ITEM) {
+                        if (!BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("ic2")) {
+                            continue;
                         }
-                    } catch (Exception ignored) {
-                        // 注册尚未完成时跳过（实际不触发，displayItems 是 deferred）
+                        // 第四十九轮修复（P0）：原实现把 try/catch 包在**整个 for 循环外**，
+                        // 于是任何一个物品抛异常，**从它开始往后的所有 ic2 物品都不会进创造栏**。
+                        // 用户实测症状：枯竭燃料棒（Ic2Items 407-412）之后的空燃料棒(433)、
+                        // 铀/MOX 燃料棒(493+)整批消失，且 JEI 因缺少输入物品而显示不出配方。
+                        // 现改为**逐物品** try/catch：单个失败只记一条日志，不影响其余物品。
+                        try {
+                            // 第三十七轮：经典版（classic_*）物品与普通版**同名同图标**（上游就没给独立名称/贴图），
+                            // 在创造栏里表现为"同一个 MFSU 出现两次"。1.12.2 的创造栏里没有它们 —— 详见
+                            // Ic2CreativeVariants.HIDDEN_IN_CREATIVE_TAB 的注释。
+                            if (Ic2CreativeVariants.isHiddenInCreativeTab(item)) {
+                                continue;
+                            }
+                            output.accept(item);
+                            /*
+                             * 第三十三轮：补回 1.12.2 创造栏里的"满电版本"条目 ——
+                             * 四个电池类物品（充电电池/高级充电电池/能量水晶/兰波顿水晶）与
+                             * 四台储电机器（储电箱/CESU/MFE/MFSU）。1.21.1 的
+                             * Item.fillItemCategory 已被移除，只能在 displayItems 里追加。
+                             */
+                            ItemStack fullVariant = Ic2CreativeVariants.getFullVariant(item);
+                            if (!fullVariant.isEmpty()) {
+                                output.accept(fullVariant);
+                            }
+                        } catch (Throwable throwable) {
+                            ic2.core.IC2.log.warn(ic2.core.util.LogCategory.General,
+                                    "[CreativeTab] item %s failed: %s", BuiltInRegistries.ITEM.getKey(item), throwable.toString());
+                        }
                     }
                 })
                 .build();

@@ -224,7 +224,14 @@ extends Explosion {
         RandomSource random = this.worldObj.random;
         boolean bl3 = this.worldObj.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS);
         HashMap<XZPosition, HashMap<ItemComparableItemStack, DropData>> hashMap = new HashMap<XZPosition, HashMap<ItemComparableItemStack, DropData>>();
-        net.minecraft.world.level.storage.loot.LootParams.Builder builder = new net.minecraft.world.level.storage.loot.LootParams.Builder((ServerLevel)this.worldObj).withParameter(LootContextParams.ORIGIN, new Vec3(this.explosionX, this.explosionY, this.explosionZ)).withParameter(LootContextParams.TOOL, ItemStack.EMPTY).withOptionalParameter(LootContextParams.THIS_ENTITY, this.exploder).withParameter(LootContextParams.EXPLOSION_RADIUS, Float.valueOf(this.power));
+        // 第四十九轮修复（用户实测：核爆后除红石火把外没有任何掉落，像"直接清空区域"）：
+        // 原实现走 1.21 的战利品表路径 `blockState.getDrops(builder)`，而该 builder 的 `TOOL` 是
+        // `ItemStack.EMPTY` —— **空手** 判定 → 石头/矿石等需要镐的方块一律掉落为空。1.12.2 的
+        // 权威实现是 `StackUtil.getDrops(worldObj, pos, state, block, 0)`（`ExplosionIC2.java:221`），
+        // `Block.getDrops(...)` 在 1.12.2 里**不看工具**（只有时运等级）→ 所有方块都按默认掉落。
+        // 现改回同一条路径（`StackUtil.getDrops` 内部用钻石镐，等价于 1.12.2 的"无视工具"语义）。
+        int diagDropped = 0;
+        int diagEntities = 0;
         for (int i = 0; i < this.destroyedBlockPositions.length; ++i) {
             int n7 = i + this.worldMinHeight;
             long[] lArray = this.destroyedBlockPositions[i];
@@ -241,9 +248,7 @@ extends Explosion {
                     // empty if block
                 }
                 if (bl3 && block.dropFromExplosion((Explosion)this) && Ic2Explosion.getAtIndex(n8, lArray, 2) == 1) {
-                    BlockEntity blockEntity = blockState.hasBlockEntity() ? this.worldObj.getBlockEntity((BlockPos)mutableBlockPos) : null;
-                    builder.withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
-                    List<ItemStack> list2 = blockState.getDrops(builder);
+                    List<ItemStack> list2 = StackUtil.getDrops(this.worldObj, (BlockPos)mutableBlockPos, blockState, 0);
                     for (ItemStack itemStack : list2) {
                         ItemComparableItemStack itemComparableItemStack;
                         DropData dropData;
@@ -257,9 +262,11 @@ extends Explosion {
                         if ((dropData = (DropData)hashMap2.get(itemComparableItemStack = new ItemComparableItemStack(itemStack, false))) == null) {
                             dropData = new DropData(StackUtil.getSize(itemStack), n7);
                             hashMap2.put(itemComparableItemStack.copy(), dropData);
+                            diagDropped += StackUtil.getSize(itemStack);
                             continue;
                         }
                         dropData.add(StackUtil.getSize(itemStack), n7);
+                        diagDropped += StackUtil.getSize(itemStack);
                     }
                 }
                 this.worldObj.setBlock((BlockPos)mutableBlockPos, Blocks.AIR.defaultBlockState(), 3);
@@ -276,8 +283,13 @@ extends Explosion {
                     ItemEntity itemEntity = new ItemEntity(this.worldObj, (double)(((float)xZPosition.x + this.worldObj.random.nextFloat()) * 2.0f), (double)((DropData)entry2.getValue()).maxY + 0.5, (double)(((float)xZPosition.z + this.worldObj.random.nextFloat()) * 2.0f), itemComparableItemStack.toStack(n11));
                     itemEntity.setDefaultPickUpDelay();
                     this.worldObj.addFreshEntity(itemEntity);
+                    ++diagEntities;
                 }
             }
+        }
+        // 第四十九轮诊断：大爆炸的掉落统计（droppedStacks=0 即"清空区域"现象复现）
+        if (this.power >= 20.0f) {
+            IC2.log.info(ic2.core.util.LogCategory.General, "[ExplosionDiag] power=%.1f dropRate=%.3f doDrops=%b droppedStacks=%d entities=%d", this.power, this.explosionDropRate, bl3, diagDropped, diagEntities);
         }
     }
 

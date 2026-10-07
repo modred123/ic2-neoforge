@@ -137,7 +137,7 @@ implements INetworkTileEntityEventListener {
         }
         if ((level = this.getLevel()).hasNeighborSignal(this.worldPosition) && this.target != null) {
             this.setActive(true);
-            List<Entity> list = bl ? Collections.emptyList() : level.getEntitiesOfClass(Entity.class, new AABB((double)(this.worldPosition.getX() - 1), (double)this.worldPosition.getY(), (double)(this.worldPosition.getZ() - 1), (double)(this.worldPosition.getX() + 2), (double)(this.worldPosition.getY() + 3), (double)(this.worldPosition.getZ() + 2)), null);
+            List<Entity> list = bl ? Collections.emptyList() : level.getEntitiesOfClass(Entity.class, new AABB((double)(this.worldPosition.getX() - 1), (double)this.worldPosition.getY(), (double)(this.worldPosition.getZ() - 1), (double)(this.worldPosition.getX() + 2), (double)(this.worldPosition.getY() + 3), (double)(this.worldPosition.getZ() + 2)), net.minecraft.world.entity.EntitySelector.NO_SPECTATORS);   // 第五十轮：null 谓词会 NPE（同反应堆 425 行）
             if (!list.isEmpty() && this.verifyTarget()) {
                 double d = Double.MAX_VALUE;
                 Entity entity = null;

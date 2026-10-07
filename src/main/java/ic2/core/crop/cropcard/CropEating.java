@@ -122,7 +122,7 @@ extends Ic2CropCard {
             StackUtil.dropAsEntity(iCropTile.getWorldObj(), blockPos, new ItemStack((ItemLike)Items.ROTTEN_FLESH));
             iCropTile.getCustomData().putBoolean("eaten", false);
         }
-        if ((list = iCropTile.getWorldObj().getEntitiesOfClass(LivingEntity.class, new AABB(d - 1.0, (double)blockPos.getY(), d3 - 1.0, d + 1.0, (double)blockPos.getY() + 1.0 + 1.0, d3 + 1.0), null)).isEmpty()) {
+        if ((list = iCropTile.getWorldObj().getEntitiesOfClass(LivingEntity.class, new AABB(d - 1.0, (double)blockPos.getY(), d3 - 1.0, d + 1.0, (double)blockPos.getY() + 1.0 + 1.0, d3 + 1.0), net.minecraft.world.entity.EntitySelector.NO_SPECTATORS)).isEmpty()) {   // 第五十轮：null 谓词会 NPE（同反应堆 425 行）
             return;
         }
         Collections.shuffle(list);

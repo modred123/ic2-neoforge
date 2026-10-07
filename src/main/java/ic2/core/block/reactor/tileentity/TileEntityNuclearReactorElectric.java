@@ -422,7 +422,12 @@ IGuiValueProvider {
             }
         }
         if (f >= 0.7f) {
-            for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, new AABB((double)(this.worldPosition.getX() - 3), (double)(this.worldPosition.getY() - 3), (double)(this.worldPosition.getZ() - 3), (double)(this.worldPosition.getX() + 4), (double)(this.worldPosition.getY() + 4), (double)(this.worldPosition.getZ() + 4)), null)) {
+            for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, new AABB((double)(this.worldPosition.getX() - 3), (double)(this.worldPosition.getY() - 3), (double)(this.worldPosition.getZ() - 3), (double)(this.worldPosition.getX() + 4), (double)(this.worldPosition.getY() + 4), (double)(this.worldPosition.getZ() + 4)), net.minecraft.world.entity.EntitySelector.NO_SPECTATORS)) {
+            // 第五十轮修复（P0 崩溃）：第三参数原为 `null` —— 1.12.2 的三参
+            // `getEntitiesWithinAABB(Class, AABB)` 没有谓词，迁移补位时补成了 null；
+            // 而 1.21.1 的 `Level.getEntities(...)` 会直接 `predicate.test(...)` → NullPointerException
+            // （crash-2026-10-07_20.30.18：过热反应堆 calculateHeatEffects:425 每 tick 崩服）。
+            // 改用 `EntitySelector.NO_SPECTATORS`：与 1.12.2 "命中范围内所有实体"语义一致，只是排除旁观者。
                 entity.hurt(Ic2DamageSource.radiation(level), (float)((int)((float)level.random.nextInt(4) * this.hem)));
             }
         }
@@ -643,6 +648,15 @@ IGuiValueProvider {
         level.removeBlock(this.worldPosition, false);
         Ic2Explosion ic2Explosion = new Ic2Explosion(level, null, this.worldPosition, f, 0.01f, Ic2Explosion.Type.Nuclear);
         ic2Explosion.doExplosion();
+        // 第五十二轮：成就「让核反应堆熔毁」改为**真正爆炸时**授予（原先 criterion 是
+        // `inventory_changed`，拿一个反应堆舱就会解锁，语义完全不对）。
+        // 做法对齐 1.12.2 `EnergyCalculatorLeg.java:576-579`（过压炸机器成就）：取 20 格内最近的玩家。
+        net.minecraft.world.entity.player.Player player = level.getNearestPlayer(
+                (double)this.worldPosition.getX() + 0.5, (double)this.worldPosition.getY() + 0.5,
+                (double)this.worldPosition.getZ() + 0.5, 20.0, false);
+        if (player != null) {
+            IC2.achievements.issueAchievement(player, "makeNuclearReactorExplode");
+        }
     }
 
     @Override

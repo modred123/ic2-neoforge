@@ -33,6 +33,9 @@ public class IC2Achievements {
 
     static {
         CODE_TRIGGERED.put("explodeMachine", IC2.getIdentifier("ic2/explode_machine"));
+        // 第五十二轮：原先该成就的 criterion 是 inventory_changed（拿个反应堆舱就解锁），
+        // 与"让反应堆熔毁"的语义不符、也永远不会真的触发。现改为真正爆炸时由代码授予。
+        CODE_TRIGGERED.put("makeNuclearReactorExplode", IC2.getIdentifier("ic2/build_generator/build_compressor/make_nuclear_reactor_explode"));
         CODE_TRIGGERED.put("dieFromOwnNuke", IC2.getIdentifier("ic2/die_from_own_nuke"));
         CODE_TRIGGERED.put("replicateObject", IC2.getIdentifier("ic2/build_generator/build_compressor/replicate_object"));
         CODE_TRIGGERED.put("teleportFarAway", IC2.getIdentifier("ic2/teleport_far_away"));

@@ -3,6 +3,8 @@ package ic2.integration.jei;
 import ic2.core.IC2;
 import ic2.core.ref.Ic2Blocks;
 import ic2.core.ref.Ic2RecipeTypes;
+import ic2.integration.jei.recipe.canner.CannerBottleCategory;
+import ic2.integration.jei.recipe.canner.CannerBottleRecipeWrapper;
 import ic2.integration.jei.recipe.machine.DynamicCategory;
 import ic2.integration.jei.recipe.machine.IORecipeWrapper;
 import ic2.integration.jei.recipe.machine.MetalFormerCategory;
@@ -34,6 +36,8 @@ public class Ic2JeiPlugin implements IModPlugin {
     private final RecipeType<IORecipeWrapper> METAL_FORMER_ROLLING = RecipeType.create("ic2", "metal_former_rolling", IORecipeWrapper.class);
     private final RecipeType<IORecipeWrapper> METAL_FORMER_CUTTING = RecipeType.create("ic2", "metal_former_cutting", IORecipeWrapper.class);
     private final RecipeType<IORecipeWrapper> ORE_WASHER = RecipeType.create("ic2", "ore_washer", IORecipeWrapper.class);
+    /** 第四十九轮新增：装罐机「装瓶/装罐」—— "把核燃料压进空燃料棒"就是这条配方。 */
+    private final RecipeType<CannerBottleRecipeWrapper> CANNER_BOTTLE = RecipeType.create("ic2", "canner_bottle", CannerBottleRecipeWrapper.class);
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -53,7 +57,8 @@ public class Ic2JeiPlugin implements IModPlugin {
             new MetalFormerCategory(this.METAL_FORMER_EXTRUDING, 0, guiHelper),
             new MetalFormerCategory(this.METAL_FORMER_ROLLING, 1, guiHelper),
             new MetalFormerCategory(this.METAL_FORMER_CUTTING, 2, guiHelper),
-            new DynamicCategory(Ic2Blocks.ORE_WASHING_PLANT, this.ORE_WASHER, guiHelper)
+            new DynamicCategory(Ic2Blocks.ORE_WASHING_PLANT, this.ORE_WASHER, guiHelper),
+            new CannerBottleCategory(this.CANNER_BOTTLE, guiHelper)
         });
     }
 
@@ -67,6 +72,7 @@ public class Ic2JeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(Ic2Blocks.MACERATOR), this.MACERATOR);
         registration.addRecipeCatalyst(new ItemStack(Ic2Blocks.METAL_FORMER), this.METAL_FORMER_CUTTING, this.METAL_FORMER_EXTRUDING, this.METAL_FORMER_ROLLING);
         registration.addRecipeCatalyst(new ItemStack(Ic2Blocks.ORE_WASHING_PLANT), this.ORE_WASHER);
+        registration.addRecipeCatalyst(new ItemStack(Ic2Blocks.CANNER), this.CANNER_BOTTLE);
     }
 
     @Override
@@ -103,6 +109,31 @@ public class Ic2JeiPlugin implements IModPlugin {
         this.registerRecipes(registration, recipeManager, this.METAL_FORMER_EXTRUDING, Ic2RecipeTypes.METAL_FORMER_EXTRUDING, ic2.api.recipe.Recipes.metalformerExtruding);
         this.registerRecipes(registration, recipeManager, this.METAL_FORMER_ROLLING, Ic2RecipeTypes.METAL_FORMER_ROLLING, ic2.api.recipe.Recipes.metalformerRolling);
         this.registerRecipes(registration, recipeManager, this.ORE_WASHER, Ic2RecipeTypes.ORE_WASHER, ic2.api.recipe.Recipes.oreWashing);
+        this.registerCannerBottleRecipes(registration);
+    }
+
+    /**
+     * 第四十九轮新增：装罐机「装瓶/装罐」配方的 JEI 注册。
+     * 该类型的管理器是 {@code ICannerBottleRecipeManager}（不是 {@code IBasicMachineRecipeManager}），
+     * 因此无法复用 {@link #registerRecipes} —— 直接遍历其 {@code getRecipes()} 即可。
+     */
+    private void registerCannerBottleRecipes(IRecipeRegistration registration) {
+        List<CannerBottleRecipeWrapper> wrappers = new ArrayList<>();
+        try {
+            net.minecraft.world.level.Level level = Minecraft.getInstance().level;
+            ic2.api.recipe.ICannerBottleRecipeManager manager =
+                    level == null ? null : ic2.api.recipe.Recipes.cannerBottle.get(level);
+            if (manager != null) {
+                for (ic2.api.recipe.MachineRecipe<ic2.api.recipe.ICannerBottleRecipeManager.Input, ItemStack> recipe : manager.getRecipes()) {
+                    ic2.api.recipe.ICannerBottleRecipeManager.Input input = recipe.getInput();
+                    wrappers.add(new CannerBottleRecipeWrapper(input.container, input.fill, recipe.getOutput()));
+                }
+            }
+        } catch (Throwable t) {
+            org.apache.logging.log4j.LogManager.getLogger("ic2-jei").warn("JEI canner_bottle read failed: {}", t.toString());
+        }
+        org.apache.logging.log4j.LogManager.getLogger("ic2-jei").info("JEI registerRecipes: canner_bottle wrappers={}", wrappers.size());
+        registration.addRecipes(this.CANNER_BOTTLE, wrappers);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
