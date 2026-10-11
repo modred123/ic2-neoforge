@@ -421,6 +421,22 @@ implements EnvFluidHandler {
     }
 
     private static IFluidHandler getFluidHandler(BlockState blockState, Level level, BlockPos blockPos, BlockEntity blockEntity, Direction direction) {
+        // 第五十五轮修复（P0 崩溃）：1.12.2 的 `FluidUtil.getFluidHandler(world, pos, side)` 允许 null，
+        // 而 1.21 的 `BlockCapability.getCapability(level, pos, ...)` 会直接 `pos.immutable()` → NPE。
+        // IC2 流体工具里那批"只给 BlockEntity"的重载（isFluidBlock / drainMb / fillMb）原先正是传的
+        // null（已在上游 `FluidHandler` 侧补齐），这里再做一层兜底：能补就补，补不出来就当作"没有流体能力"，
+        // 绝不把 null 交给 NeoForge 的 Capability。
+        if (blockEntity != null) {
+            if (level == null) {
+                level = blockEntity.getLevel();
+            }
+            if (blockPos == null) {
+                blockPos = blockEntity.getBlockPos();
+            }
+        }
+        if (level == null || blockPos == null) {
+            return null;
+        }
         if (blockEntity == null) {
             if (blockState.hasBlockEntity()) {
                 blockEntity = level.getBlockEntity(blockPos);

@@ -110,7 +110,29 @@ public final class FluidHandler {
         return ENV_HANDLER.isFluidBlock(blockState, level, blockPos, null, direction);
     }
 
+    /**
+     * 第五十五轮修复（P0 崩溃）：从 BlockEntity 补齐 level / blockPos。
+     *
+     * IC2 的流体工具有一批「只给 BlockEntity」的重载（isFluidBlock / drainMb / fillMb），
+     * 迁移时把 level 与 blockPos 直接写成了 null。1.12.2 的 FluidUtil.getFluidHandler(world, pos, side)
+     * 允许 null，但 1.21 的 NeoForge BlockCapability.getCapability(level, pos, ...) 会直接执行
+     * pos.immutable() → NullPointerException（crash-2026-10-08_00.52.26：往流体储罐塞入「抽入升级」后，
+     * TileEntityTank 每 tick 崩服）。
+     *
+     * 注：TE 尚未加入世界时 getLevel() 可能仍为 null，ENV 侧也会兜底。
+     */
+    private static Level levelOf(BlockEntity blockEntity) {
+        return blockEntity == null ? null : blockEntity.getLevel();
+    }
+
+    private static BlockPos posOf(BlockEntity blockEntity) {
+        return blockEntity == null ? null : blockEntity.getBlockPos();
+    }
+
     public static boolean isFluidBlock(BlockEntity blockEntity, Direction direction) {
+        if (blockEntity == null) {
+            return false;
+        }
         BlockState blockState = blockEntity.getBlockState();
         return FluidHandler.isFluidBlock(blockState, blockEntity, direction);
     }
@@ -119,9 +141,9 @@ public final class FluidHandler {
         Block block = blockState.getBlock();
         if (block instanceof Ic2FluidBlock) {
             Ic2FluidBlock ic2FluidBlock = (Ic2FluidBlock)block;
-            return ic2FluidBlock.isFluidBlock(null, null, null, blockEntity);
+            return ic2FluidBlock.isFluidBlock(blockState, levelOf(blockEntity), posOf(blockEntity), blockEntity);
         }
-        return ENV_HANDLER.isFluidBlock(blockState, null, null, blockEntity, direction);
+        return ENV_HANDLER.isFluidBlock(blockState, levelOf(blockEntity), posOf(blockEntity), blockEntity, direction);
     }
 
     public static Ic2FluidStack drainMb(BlockState blockState, Level level, BlockPos blockPos, Direction direction, int n, boolean bl) {
@@ -142,9 +164,9 @@ public final class FluidHandler {
         Block block = blockState.getBlock();
         if (block instanceof Ic2FluidBlock) {
             Ic2FluidBlock ic2FluidBlock = (Ic2FluidBlock)block;
-            return ic2FluidBlock.drainMb(null, null, null, blockEntity, direction, n, bl);
+            return ic2FluidBlock.drainMb(blockState, levelOf(blockEntity), posOf(blockEntity), blockEntity, direction, n, bl);
         }
-        return ENV_HANDLER.drainMb(blockState, null, null, blockEntity, direction, n, bl);
+        return ENV_HANDLER.drainMb(blockState, levelOf(blockEntity), posOf(blockEntity), blockEntity, direction, n, bl);
     }
 
     public static int drainMb(BlockState blockState, Level level, BlockPos blockPos, Direction direction, Ic2FluidStack ic2FluidStack, boolean bl) {
@@ -161,9 +183,9 @@ public final class FluidHandler {
         Block block = blockState.getBlock();
         if (block instanceof Ic2FluidBlock) {
             Ic2FluidBlock ic2FluidBlock = (Ic2FluidBlock)block;
-            return ic2FluidBlock.drainMb(null, null, null, blockEntity, direction, ic2FluidStack, bl);
+            return ic2FluidBlock.drainMb(blockState, levelOf(blockEntity), posOf(blockEntity), blockEntity, direction, ic2FluidStack, bl);
         }
-        return ENV_HANDLER.drainMb(blockState, null, null, blockEntity, direction, ic2FluidStack, bl);
+        return ENV_HANDLER.drainMb(blockState, levelOf(blockEntity), posOf(blockEntity), blockEntity, direction, ic2FluidStack, bl);
     }
 
     public static int fillMb(BlockState blockState, Level level, BlockPos blockPos, Direction direction, Ic2FluidStack ic2FluidStack, boolean bl) {
@@ -180,9 +202,9 @@ public final class FluidHandler {
         Block block = blockState.getBlock();
         if (block instanceof Ic2FluidBlock) {
             Ic2FluidBlock ic2FluidBlock = (Ic2FluidBlock)block;
-            return ic2FluidBlock.fillMb(null, null, null, blockEntity, direction, ic2FluidStack, bl);
+            return ic2FluidBlock.fillMb(blockState, levelOf(blockEntity), posOf(blockEntity), blockEntity, direction, ic2FluidStack, bl);
         }
-        return ENV_HANDLER.fillMb(blockState, null, null, blockEntity, direction, ic2FluidStack, bl);
+        return ENV_HANDLER.fillMb(blockState, levelOf(blockEntity), posOf(blockEntity), blockEntity, direction, ic2FluidStack, bl);
     }
 
     public static Fluid getWorldFluid(BlockState blockState) {

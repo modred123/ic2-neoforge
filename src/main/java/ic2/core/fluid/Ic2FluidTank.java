@@ -99,19 +99,16 @@ public class Ic2FluidTank {
 
     private int drainMb(Ic2FluidStack ic2FluidStack, boolean bl, boolean bl2) {
         int n;
-        if (ic2FluidStack.isEmpty() || this.fluidStack == null || this.fluidStack.isEmpty() || !this.fluidStack.hasExactFluid(ic2FluidStack) || bl2 && !this.canDrain()) {
+        if (ic2FluidStack == null || ic2FluidStack.getAmountMb() <= 0 || this.fluidStack == null || this.fluidStack.isEmpty() || !this.fluidStack.hasExactFluid(ic2FluidStack) || bl2 && !this.canDrain()) {
             return 0;
         }
-        int n2 = ic2FluidStack.getAmountMb();
-        if (n2 <= this.fluidStack.getAmountMb()) {
-            n = this.fluidStack.getAmountMb();
-            if (!bl) {
+        int requested = ic2FluidStack.getAmountMb();
+        int available = this.fluidStack.getAmountMb();
+        n = Math.min(requested, available);
+        if (!bl) {
+            this.fluidStack.decreaseMb(n);
+            if (this.fluidStack.isEmpty()) {
                 this.fluidStack = null;
-            }
-        } else {
-            n = n2;
-            if (!bl) {
-                this.fluidStack.decreaseMb(n2);
             }
         }
         return n;

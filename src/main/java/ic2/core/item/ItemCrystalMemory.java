@@ -61,8 +61,7 @@ extends Item {
 
     public void writecontentsTag(ItemStack itemStack, ItemStack itemStack2) {
         CompoundTag compoundTag = StackUtil.getOrCreateNbtData(itemStack);
-        CompoundTag compoundTag2 = new CompoundTag();
-        itemStack2.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), compoundTag2);
+        CompoundTag compoundTag2 = (CompoundTag)itemStack2.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY));
         compoundTag.put("Pattern", (Tag)compoundTag2);
     }
 }

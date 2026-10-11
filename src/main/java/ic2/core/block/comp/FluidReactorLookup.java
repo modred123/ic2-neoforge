@@ -34,16 +34,27 @@ extends TileEntityComponent {
             this.updateReactor();
             this.lastReactorUpdate = l;
         } else if (this.reactor != null && (this.reactor.isRemoved() || !this.reactor.isFluidCooled())) {
-            this.reactor = null;
+            this.setReactor(null);
         }
         return this.reactor;
+    }
+
+    private void setReactor(TileEntityNuclearReactorElectric reactor) {
+        if (this.reactor == reactor) {
+            return;
+        }
+        this.reactor = reactor;
+        Level level = this.parent.getLevel();
+        if (level != null) {
+            level.invalidateCapabilities(this.parent.getBlockPos());
+        }
     }
 
     private void updateReactor() {
         BlockPos blockPos;
         Level level = this.parent.getLevel();
         if (!Util.isAreaLoaded((LevelReader)level, blockPos = this.parent.getBlockPos(), 2)) {
-            this.reactor = null;
+            this.setReactor(null);
             return;
         }
         if (this.reactor != null && !this.reactor.isRemoved() && this.reactor.isFluidCooled() && this.reactor.getLevel() == level && level.getBlockEntity(this.reactor.getBlockPos()) == this.reactor) {
@@ -55,19 +66,20 @@ extends TileEntityComponent {
                 return;
             }
         }
-        this.reactor = null;
+        final TileEntityNuclearReactorElectric[] found = new TileEntityNuclearReactorElectric[1];
         WorldUtil.findTileEntities(level, blockPos, 2, new WorldUtil.ITileEntityResultHandler(){
 
             @Override
             public boolean onMatch(BlockEntity blockEntity) {
                 TileEntityNuclearReactorElectric tileEntityNuclearReactorElectric;
                 if (blockEntity instanceof TileEntityNuclearReactorElectric && (tileEntityNuclearReactorElectric = (TileEntityNuclearReactorElectric)blockEntity).isFluidCooled()) {
-                    FluidReactorLookup.this.reactor = tileEntityNuclearReactorElectric;
+                    found[0] = tileEntityNuclearReactorElectric;
                     return true;
                 }
                 return false;
             }
         });
+        this.setReactor(found[0]);
     }
 }
 

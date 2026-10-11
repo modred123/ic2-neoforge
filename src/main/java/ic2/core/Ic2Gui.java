@@ -375,7 +375,7 @@ extends AbstractContainerScreen<T> {
         Matrix4f matrix4f = poseStack.last().pose();
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        for (double x = d; x < d + d3; x += tileSize) {
+        for (double x = d; x < d + d3;) {
             double tileW = tileSize;
             double uStart = u0;
             if (x == d && bl) {
@@ -388,7 +388,7 @@ extends AbstractContainerScreen<T> {
             }
             double xEnd = Math.min(x + tileW, d + d3);
             double uEnd = uStart + (xEnd - x) / tileSize * du;
-            for (double y = d2; y < d2 + d4; y += tileSize) {
+            for (double y = d2; y < d2 + d4;) {
                 double tileH = tileSize;
                 double vStart = v0;
                 if (y == d2 && bl2) {
@@ -405,7 +405,9 @@ extends AbstractContainerScreen<T> {
                 bufferBuilder.addVertex(matrix4f, (float)x, (float)yEnd, 0.0f).setUv((float)uStart, (float)vEnd).setColor(red, green, blue, alpha);
                 bufferBuilder.addVertex(matrix4f, (float)xEnd, (float)yEnd, 0.0f).setUv((float)uEnd, (float)vEnd).setColor(red, green, blue, alpha);
                 bufferBuilder.addVertex(matrix4f, (float)xEnd, (float)y, 0.0f).setUv((float)uEnd, (float)vStart).setColor(red, green, blue, alpha);
+                y += tileH;
             }
+            x += tileW;
         }
         BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
     }

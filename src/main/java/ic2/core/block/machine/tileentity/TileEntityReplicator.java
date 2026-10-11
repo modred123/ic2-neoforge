@@ -250,9 +250,7 @@ INetworkClientTileEntityEventListener {
         compoundTag.putInt("index", this.index);
         compoundTag.putInt("mode", this.mode.ordinal());
         if (this.pattern != null) {
-            CompoundTag compoundTag2 = new CompoundTag();
-            this.pattern.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), compoundTag2);
-            compoundTag.put("pattern", (Tag)compoundTag2);
+            compoundTag.put("pattern", this.pattern.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY)));
         }
     }
 

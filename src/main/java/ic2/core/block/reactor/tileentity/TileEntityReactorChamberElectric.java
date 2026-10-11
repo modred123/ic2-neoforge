@@ -81,6 +81,12 @@ IEnergyEmitter {
         this.updateRedstoneLink();
     }
 
+    @Override
+    protected void updateEntityServer() {
+        super.updateEntityServer();
+        this.getReactor();
+    }
+
     private void updateRedstoneLink() {
         if (this.getLevel().isClientSide) {
             return;
@@ -217,19 +223,31 @@ IEnergyEmitter {
             this.updateReactor();
             this.lastReactorUpdate = l;
         } else if (this.reactor != null && this.reactor.isRemoved()) {
-            this.reactor = null;
+            this.setReactor(null);
         }
         return this.reactor;
     }
 
     private void updateReactor() {
         Level level = this.getLevel();
-        this.reactor = null;
+        TileEntityNuclearReactorElectric found = null;
         for (Direction direction : Util.ALL_DIRS) {
             BlockEntity blockEntity = level.getBlockEntity(this.worldPosition.relative(direction));
             if (!(blockEntity instanceof TileEntityNuclearReactorElectric)) continue;
-            this.reactor = (TileEntityNuclearReactorElectric)blockEntity;
+            found = (TileEntityNuclearReactorElectric)blockEntity;
             break;
+        }
+        this.setReactor(found);
+    }
+
+    private void setReactor(TileEntityNuclearReactorElectric reactor) {
+        if (this.reactor == reactor) {
+            return;
+        }
+        this.reactor = reactor;
+        Level level = this.getLevel();
+        if (level != null) {
+            level.invalidateCapabilities(this.worldPosition);
         }
     }
 }

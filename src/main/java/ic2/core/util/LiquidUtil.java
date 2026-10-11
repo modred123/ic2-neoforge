@@ -268,6 +268,9 @@ public class LiquidUtil {
 
     public static List<AdjacentFluidHandler> getAdjacentHandlers(BlockEntity blockEntity) {
         ArrayList<AdjacentFluidHandler> arrayList = new ArrayList<AdjacentFluidHandler>();
+        if (blockEntity == null || blockEntity.getLevel() == null) {
+            return arrayList;
+        }
         for (Direction direction : Util.ALL_DIRS) {
             BlockEntity blockEntity2 = blockEntity.getLevel().getBlockEntity(blockEntity.getBlockPos().relative(direction));
             if (!LiquidUtil.isFluidTile(blockEntity2, direction.getOpposite())) continue;
@@ -277,6 +280,9 @@ public class LiquidUtil {
     }
 
     public static AdjacentFluidHandler getAdjacentHandler(BlockEntity blockEntity, Direction direction) {
+        if (blockEntity == null || direction == null || blockEntity.getLevel() == null) {
+            return null;
+        }
         BlockEntity blockEntity2 = blockEntity.getLevel().getBlockEntity(blockEntity.getBlockPos().relative(direction));
         if (!LiquidUtil.isFluidTile(blockEntity2, direction.getOpposite())) {
             return null;

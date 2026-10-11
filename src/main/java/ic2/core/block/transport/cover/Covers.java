@@ -89,9 +89,8 @@ extends TileEntityComponent {
         for (Direction direction : Util.ALL_DIRS) {
             ItemStack itemStack = this.covers[direction.ordinal()];
             if (StackUtil.isEmpty(itemStack)) continue;
-            CompoundTag compoundTag2 = new CompoundTag();
+            CompoundTag compoundTag2 = (CompoundTag)itemStack.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY));
             compoundTag2.putByte("facing", (byte)direction.ordinal());
-            itemStack.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), compoundTag2);
             listTag.add(compoundTag2);
         }
         compoundTag.put("covers", (Tag)listTag);

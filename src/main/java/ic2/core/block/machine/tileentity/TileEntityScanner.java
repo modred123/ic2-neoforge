@@ -172,18 +172,13 @@ INetworkClientTileEntityEventListener {
 
     @Override
     public void saveAdditional(CompoundTag compoundTag, net.minecraft.core.HolderLookup.Provider registries) {
-        CompoundTag compoundTag2;
         super.saveAdditional(compoundTag, registries);
         compoundTag.putInt("progress", this.progress);
         if (!StackUtil.isEmpty(this.currentStack)) {
-            compoundTag2 = new CompoundTag();
-            this.currentStack.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), compoundTag2);
-            compoundTag.put("currentStack", (Tag)compoundTag2);
+            compoundTag.put("currentStack", this.currentStack.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY)));
         }
         if (!StackUtil.isEmpty(this.pattern)) {
-            compoundTag2 = new CompoundTag();
-            this.pattern.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), compoundTag2);
-            compoundTag.put("pattern", (Tag)compoundTag2);
+            compoundTag.put("pattern", this.pattern.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY)));
         }
         compoundTag.putInt("state", this.state.ordinal());
     }

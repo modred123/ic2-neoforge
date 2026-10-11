@@ -20,6 +20,7 @@ import ic2.core.block.comp.TileEntityComponent;
 import ic2.core.block.invslot.InvSlot;
 import ic2.core.block.tileentity.Ic2TileEntity;
 import ic2.core.fluid.FluidTankInfo;
+import ic2.core.fluid.Ic2FluidBlock;
 import ic2.core.fluid.Ic2FluidStack;
 import ic2.core.fluid.Ic2FluidTank;
 import ic2.core.util.Util;
@@ -31,19 +32,83 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 
 public class Fluids
-extends TileEntityComponent {
+extends TileEntityComponent
+implements Ic2FluidBlock {
     protected final List<InternalFluidTank> managedTanks = new ArrayList<InternalFluidTank>();
     protected final List<Supplier<? extends Collection<InternalFluidTank>>> unmanagedTanks = new ArrayList<Supplier<? extends Collection<InternalFluidTank>>>();
 
     public Fluids(Ic2TileEntity ic2TileEntity) {
         super(ic2TileEntity);
+    }
+
+    @Override
+    public boolean isFluidBlock(BlockState blockState, Level level, BlockPos blockPos, BlockEntity blockEntity) {
+        // Use the capability view so reactor ports/chambers backed by unmanaged tanks
+        // are exposed as fluid blocks as well.
+        return this.getTankInfos(blockState, level, blockPos, blockEntity) != null;
+    }
+
+    @Override
+    public FluidTankInfo[] getTankInfos(BlockState blockState, Level level, BlockPos blockPos, BlockEntity blockEntity) {
+        ArrayList<FluidTankInfo> infos = new ArrayList<>();
+        for (InternalFluidTank tank : this.getAllTanks()) {
+            int drainMask = 0;
+            int fillMask = 0;
+            for (Direction direction : Util.ALL_DIRS) {
+                int mask = 1 << direction.ordinal();
+                if (tank.canDrain(direction)) {
+                    drainMask |= mask;
+                }
+                if (tank.canFill(direction)) {
+                    fillMask |= mask;
+                }
+            }
+            if ((drainMask | fillMask) != 0) {
+                infos.add(new FluidTankInfo(drainMask, fillMask, tank.getCapacity(), tank.getFluidStack()));
+            }
+        }
+        return infos.isEmpty() ? null : infos.toArray(new FluidTankInfo[0]);
+    }
+
+    public boolean canFill(Direction side, int index, Fluid fluid) {
+        if (side == null || fluid == null || index < 0) {
+            return false;
+        }
+        for (InternalFluidTank tank : this.getAllTanks()) {
+            if (!tank.canDrain(side) && !tank.canFill(side)) {
+                continue;
+            }
+            if (index-- == 0) {
+                return tank.getCapacity() > 0 && tank.canFill(fluid, side);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Ic2FluidStack drainMb(BlockState blockState, Level level, BlockPos blockPos, BlockEntity blockEntity, Direction direction, int amount, boolean simulate) {
+        return this.drainMb(direction, amount, simulate);
+    }
+
+    @Override
+    public int drainMb(BlockState blockState, Level level, BlockPos blockPos, BlockEntity blockEntity, Direction direction, Ic2FluidStack fluidStack, boolean simulate) {
+        return this.drainMb(direction, fluidStack, simulate);
+    }
+
+    @Override
+    public int fillMb(BlockState blockState, Level level, BlockPos blockPos, BlockEntity blockEntity, Direction direction, Ic2FluidStack fluidStack, boolean simulate) {
+        return this.fillMb(direction, fluidStack, simulate);
     }
 
     public InternalFluidTank addTankInsert(String string, int n) {
@@ -149,32 +214,24 @@ extends TileEntityComponent {
     }
 
     public FluidTankInfo[] getTankInfos() {
-        if (this.managedTanks.isEmpty()) {
-            return null;
-        }
-        FluidTankInfo[] fluidTankInfoArray = new FluidTankInfo[this.managedTanks.size()];
-        int n = 0;
-        for (InternalFluidTank internalFluidTank : this.managedTanks) {
-            int n2 = 0;
-            int n3 = 0;
+        ArrayList<FluidTankInfo> infos = new ArrayList<>();
+        for (InternalFluidTank tank : this.getAllTanks()) {
+            int drainMask = 0;
+            int fillMask = 0;
             for (Direction direction : Util.ALL_DIRS) {
-                int n4 = 1 << direction.ordinal();
-                if (internalFluidTank.canDrain(direction)) {
-                    n2 |= n4;
+                int mask = 1 << direction.ordinal();
+                if (tank.canDrain(direction)) {
+                    drainMask |= mask;
                 }
-                if (!internalFluidTank.canFill(direction)) continue;
-                n3 |= n4;
+                if (tank.canFill(direction)) {
+                    fillMask |= mask;
+                }
             }
-            if ((n2 | n3) == 0) continue;
-            fluidTankInfoArray[n++] = new FluidTankInfo(n2, n3, internalFluidTank.getCapacity(), internalFluidTank.getFluidStack());
+            if ((drainMask | fillMask) != 0) {
+                infos.add(new FluidTankInfo(drainMask, fillMask, tank.getCapacity(), tank.getFluidStack()));
+            }
         }
-        if (n == 0) {
-            return null;
-        }
-        if (n != fluidTankInfoArray.length) {
-            fluidTankInfoArray = Arrays.copyOf(fluidTankInfoArray, n);
-        }
-        return fluidTankInfoArray;
+        return infos.isEmpty() ? null : infos.toArray(new FluidTankInfo[0]);
     }
 
     public Ic2FluidStack drainMb(Direction direction, int n, boolean bl) {

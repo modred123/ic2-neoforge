@@ -191,9 +191,8 @@ implements IHasGui {
         ListTag listTag = new ListTag();
         for (n = 0; n < this.inventory.length; ++n) {
             if (StackUtil.isEmpty(this.inventory[n])) continue;
-            compoundTag = new CompoundTag();
+            compoundTag = (CompoundTag)this.inventory[n].save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY));
             compoundTag.putByte("Slot", (byte)n);
-            this.inventory[n].save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), compoundTag);
             listTag.add(compoundTag);
         }
         StackUtil.getOrCreateNbtData(this.containerStack).put("Items", (Tag)listTag);
@@ -243,9 +242,8 @@ implements IHasGui {
         ListTag listTag = new ListTag();
         for (int i = 0; i < this.inventory.length; ++i) {
             if (StackUtil.isEmpty(this.inventory[i]) || this.isThisContainer(this.inventory[i])) continue;
-            CompoundTag compoundTag = new CompoundTag();
+            CompoundTag compoundTag = (CompoundTag)this.inventory[i].save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY));
             compoundTag.putByte("Slot", (byte)i);
-            this.inventory[i].save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), compoundTag);
             listTag.add(compoundTag);
         }
         StackUtil.getOrCreateNbtData(itemStack).put("Items", (Tag)listTag);

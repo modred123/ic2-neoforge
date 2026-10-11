@@ -30,7 +30,12 @@ final class BlockFluidCapImpl {
         }
 
         public int getTanks() {
-            FluidTankInfo[] fluidTankInfoArray = BlockFluidCapImpl.this.parent.getTankInfos(null, null, null, BlockFluidCapImpl.this.be);
+            FluidTankInfo[] fluidTankInfoArray = BlockFluidCapImpl.this.parent.getTankInfos(
+                BlockFluidCapImpl.this.be.getBlockState(),
+                BlockFluidCapImpl.this.be.getLevel(),
+                BlockFluidCapImpl.this.be.getBlockPos(),
+                BlockFluidCapImpl.this.be
+            );
             if (fluidTankInfoArray == null) {
                 return 0;
             }
@@ -44,7 +49,12 @@ final class BlockFluidCapImpl {
         }
 
         private FluidTankInfo getTankInfo(int n) {
-            FluidTankInfo[] fluidTankInfoArray = BlockFluidCapImpl.this.parent.getTankInfos(null, null, null, BlockFluidCapImpl.this.be);
+            FluidTankInfo[] fluidTankInfoArray = BlockFluidCapImpl.this.parent.getTankInfos(
+                BlockFluidCapImpl.this.be.getBlockState(),
+                BlockFluidCapImpl.this.be.getLevel(),
+                BlockFluidCapImpl.this.be.getBlockPos(),
+                BlockFluidCapImpl.this.be
+            );
             if (fluidTankInfoArray == null) {
                 return null;
             }
@@ -67,22 +77,41 @@ final class BlockFluidCapImpl {
         }
 
         public boolean isFluidValid(int n, FluidStack fluidStack) {
-            FluidTankInfo fluidTankInfo = this.getTankInfo(n);
-            return fluidTankInfo != null && fluidTankInfo.getCapacity() > 0;
+            if (fluidStack == null || fluidStack.isEmpty()) {
+                return false;
+            }
+            return BlockFluidCapImpl.this.parent instanceof ic2.core.block.comp.Fluids fluids
+                && fluids.canFill(this.side, n, fluidStack.getFluid());
         }
 
         public FluidStack drain(int n, IFluidHandler.FluidAction fluidAction) {
             if (n <= 0) {
                 return FluidStack.EMPTY;
             }
-            return EnvFluidHandlerForge.getForgeFs(BlockFluidCapImpl.this.parent.drainMb(null, null, null, BlockFluidCapImpl.this.be, this.side, n, fluidAction.simulate()));
+            return EnvFluidHandlerForge.getForgeFs(BlockFluidCapImpl.this.parent.drainMb(
+                BlockFluidCapImpl.this.be.getBlockState(),
+                BlockFluidCapImpl.this.be.getLevel(),
+                BlockFluidCapImpl.this.be.getBlockPos(),
+                BlockFluidCapImpl.this.be,
+                this.side,
+                n,
+                fluidAction.simulate()
+            ));
         }
 
         public FluidStack drain(FluidStack fluidStack, IFluidHandler.FluidAction fluidAction) {
             if (fluidStack == null || fluidStack.isEmpty()) {
                 return FluidStack.EMPTY;
             }
-            int n = BlockFluidCapImpl.this.parent.drainMb(null, null, null, BlockFluidCapImpl.this.be, this.side, new Ic2FluidStackImpl(fluidStack), fluidAction.simulate());
+            int n = BlockFluidCapImpl.this.parent.drainMb(
+                BlockFluidCapImpl.this.be.getBlockState(),
+                BlockFluidCapImpl.this.be.getLevel(),
+                BlockFluidCapImpl.this.be.getBlockPos(),
+                BlockFluidCapImpl.this.be,
+                this.side,
+                new Ic2FluidStackImpl(fluidStack),
+                fluidAction.simulate()
+            );
             if (n <= 0) {
                 return FluidStack.EMPTY;
             }
@@ -95,7 +124,15 @@ final class BlockFluidCapImpl {
             if (fluidStack == null || fluidStack.isEmpty()) {
                 return 0;
             }
-            return BlockFluidCapImpl.this.parent.fillMb(null, null, null, BlockFluidCapImpl.this.be, this.side, new Ic2FluidStackImpl(fluidStack), fluidAction.simulate());
+            return BlockFluidCapImpl.this.parent.fillMb(
+                BlockFluidCapImpl.this.be.getBlockState(),
+                BlockFluidCapImpl.this.be.getLevel(),
+                BlockFluidCapImpl.this.be.getBlockPos(),
+                BlockFluidCapImpl.this.be,
+                this.side,
+                new Ic2FluidStackImpl(fluidStack),
+                fluidAction.simulate()
+            );
         }
     }
 }

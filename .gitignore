@@ -43,3 +43,6 @@ repo/
 错误报告/
 *.log
 crash-*.txt
+
+# AI harness 本地学习记录（不入库）
+.learnings/

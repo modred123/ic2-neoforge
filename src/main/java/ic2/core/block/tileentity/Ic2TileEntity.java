@@ -40,7 +40,10 @@ import ic2.core.IC2;
 import ic2.core.IHasGui;
 import ic2.core.block.comp.Components;
 import ic2.core.block.comp.Energy;
+import ic2.core.block.comp.Fluids;
 import ic2.core.block.comp.TileEntityComponent;
+import ic2.core.fluid.FluidBeBridge;
+import ic2.core.fluid.Ic2FluidBlock;
 import ic2.core.block.tileentity.Ic2TileEntityBlock;
 import ic2.core.event.IWorldTickCallback;
 import ic2.core.event.TickHandler;
@@ -92,8 +95,11 @@ public abstract class Ic2TileEntity
 extends BlockEntity
 implements INetworkDataProvider,
 INetworkUpdateListener,
-IGuiConditionProvider {
+IGuiConditionProvider,
+FluidBeBridge {
     public static final String teBlockName = "teBlk";
+    private static final String COMPONENTS_TAG = "ic2:components";
+    private static final String LEGACY_COMPONENTS_TAG = "components";
     protected static final int lightOpacityTranslucent = 0;
     protected static final int lightOpacityOpaque = 255;
     private static final List<AABB> defaultAabbs = List.of(new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0));
@@ -118,6 +124,11 @@ IGuiConditionProvider {
 
     public final Ic2TileEntityBlock getBlockType() {
         return this.teBlock;
+    }
+
+    @Override
+    public Ic2FluidBlock getFluidBlock() {
+        return this.getComponent(Fluids.class);
     }
 
     public final void setRemoved() {
@@ -195,14 +206,26 @@ IGuiConditionProvider {
 
     public void loadAdditional(CompoundTag compoundTag, net.minecraft.core.HolderLookup.Provider registries) {
         this.active = compoundTag.getBoolean("active");
-        if (this.components == null || !compoundTag.contains("components", 10)) {
+        if (this.components == null) {
             return;
         }
-        CompoundTag compoundTag2 = compoundTag.getCompound("components");
+        boolean legacy = !compoundTag.contains(COMPONENTS_TAG, 10);
+        String tagName = legacy ? LEGACY_COMPONENTS_TAG : COMPONENTS_TAG;
+        if (!compoundTag.contains(tagName, 10)) {
+            return;
+        }
+        CompoundTag compoundTag2 = compoundTag.getCompound(tagName);
         for (String string : compoundTag2.getAllKeys()) {
             Object t;
             Class clazz = Components.getClass(string);
-            if (clazz == null || (t = this.getComponent(clazz)) == null) {
+            if (clazz == null) {
+                if (legacy) {
+                    continue;
+                }
+                IC2.log.warn(LogCategory.Block, "Can't find component %s while loading %s.", string, this);
+                continue;
+            }
+            if ((t = this.getComponent(clazz)) == null) {
                 IC2.log.warn(LogCategory.Block, "Can't find component %s while loading %s.", string, this);
                 continue;
             }
@@ -223,7 +246,7 @@ IGuiConditionProvider {
             if (compoundTag3 == null) continue;
             if (compoundTag2 == null) {
                 compoundTag2 = new CompoundTag();
-                compoundTag.put("components", (Tag)compoundTag2);
+                compoundTag.put(COMPONENTS_TAG, (Tag)compoundTag2);
             }
             if ((string = Components.getId(tileEntityComponent.getClass())) == null) {
                 throw new RuntimeException("no component id for " + tileEntityComponent.getClass().getName());

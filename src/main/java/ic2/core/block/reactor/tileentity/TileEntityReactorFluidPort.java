@@ -64,6 +64,7 @@ IReactorChamber {
     @Override
     protected void updateEntityServer() {
         super.updateEntityServer();
+        this.lookup.getReactor();
         this.upgradeSlot.tick();
     }
 

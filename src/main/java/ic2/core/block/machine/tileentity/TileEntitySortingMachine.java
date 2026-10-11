@@ -85,10 +85,16 @@ IUpgradableBlock {
         ListTag listTag = new ListTag();
         for (int i = 0; i < 42; ++i) {
             ItemStack itemStack = this.filters[i / 7][i % 7];
-            if (itemStack == null) continue;
-            CompoundTag compoundTag2 = new CompoundTag();
+            // 第五十四轮修复（P0 崩溃）：1.21 里"空槽"是 `ItemStack.EMPTY` 而**不是 null** ——
+            // 原来只判 `== null`，于是 `ItemStack.EMPTY.save(...)` 抛
+            // `IllegalStateException: Cannot encode empty ItemStack`（ItemStack.java:400）。
+            // 触发路径很隐蔽：**任何移除该方块的时刻**（左键破坏 / 爆炸 / 活塞推动）都会走
+            // `IBlockExtension.onDestroyedByPlayer` → `ClientLevel.setBlock` → `BlockSnapshot.create`
+            // → `saveWithFullMetadata` → 本方法，用户在"左键破坏电动分拣机"时踩中（crash-2026-10-08_00.39.05）。
+            // 用 `StackUtil.isEmpty` 同时覆盖 null 与 EMPTY。
+            if (StackUtil.isEmpty(itemStack)) continue;
+            CompoundTag compoundTag2 = (CompoundTag)itemStack.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY));
             compoundTag2.putByte("index", (byte)i);
-            itemStack.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), compoundTag2);
             listTag.add(compoundTag2);
         }
         compoundTag.put("filters", (Tag)listTag);

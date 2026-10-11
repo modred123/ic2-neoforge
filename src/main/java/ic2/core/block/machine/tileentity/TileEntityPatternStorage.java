@@ -110,9 +110,7 @@ IPatternStorage {
     private void writeContentsAsNbtList(CompoundTag compoundTag) {
         ListTag listTag = new ListTag();
         for (ItemStack itemStack : this.patterns) {
-            CompoundTag compoundTag2 = new CompoundTag();
-            itemStack.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), compoundTag2);
-            listTag.add(compoundTag2);
+            listTag.add(itemStack.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY)));
         }
         compoundTag.put("patterns", (Tag)listTag);
     }

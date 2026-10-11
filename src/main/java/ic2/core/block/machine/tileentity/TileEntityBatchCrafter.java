@@ -178,9 +178,8 @@ INetworkClientTileEntityEventListener {
         for (byte by = 0; by < this.craftingGrid.length; by = (byte)((byte)(by + 1))) {
             ItemStack itemStack = this.craftingGrid[by];
             if (StackUtil.isEmpty(itemStack)) continue;
-            CompoundTag compoundTag2 = new CompoundTag();
+            CompoundTag compoundTag2 = (CompoundTag)itemStack.save(this.getLevel().registryAccess());
             compoundTag2.putByte("index", by);
-            itemStack.save(this.getLevel().registryAccess(), compoundTag2);
             listTag.add(compoundTag2);
         }
         compoundTag.put("grid", (Tag)listTag);

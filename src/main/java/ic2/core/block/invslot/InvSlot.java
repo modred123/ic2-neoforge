@@ -93,9 +93,8 @@ implements Iterable<ItemStack> {
         for (int i = 0; i < this.contents.length; ++i) {
             ItemStack itemStack = this.contents[i];
             if (StackUtil.isEmpty(itemStack)) continue;
-            CompoundTag compoundTag2 = new CompoundTag();
+            CompoundTag compoundTag2 = (CompoundTag)itemStack.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY));
             compoundTag2.putByte("Index", (byte)i);
-            itemStack.save(net.minecraft.core.RegistryAccess.fromRegistryOfRegistries(net.minecraft.core.registries.BuiltInRegistries.REGISTRY), compoundTag2);
             listTag.add(compoundTag2);
         }
         compoundTag.put("Contents", (Tag)listTag);

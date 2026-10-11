@@ -291,6 +291,7 @@ IGuiValueProvider {
                     this.disableFluidMode();
                 }
                 this.fluidCooled = bl;
+                this.invalidateFluidCapabilities();
             }
             this.dropAllUnfittingStuff();
             this.output = 0.0f;
@@ -761,6 +762,20 @@ IGuiValueProvider {
     private void closeTanks() {
         this.fluids.changeConnectivity(this.inputTank, InvSlot.Access.NONE, InvSlot.InvSide.ANY);
         this.fluids.changeConnectivity(this.outputTank, InvSlot.Access.NONE, InvSlot.InvSide.ANY);
+    }
+
+    private void invalidateFluidCapabilities() {
+        Level level = this.getLevel();
+        if (level == null) {
+            return;
+        }
+        level.invalidateCapabilities(this.worldPosition);
+        for (Direction direction : Util.ALL_DIRS) {
+            BlockPos neighborPos = this.worldPosition.relative(direction);
+            if (level.getBlockEntity(neighborPos) instanceof IReactorChamber) {
+                level.invalidateCapabilities(neighborPos);
+            }
+        }
     }
 
     private boolean isFluidReactor() {

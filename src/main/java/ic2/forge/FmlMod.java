@@ -185,7 +185,12 @@ public final class FmlMod {
             event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, beType, (be, side) -> {
                 if (be instanceof Ic2TileEntity && be instanceof FluidBeBridge bridge) {
                     Ic2FluidBlock fluidBlock = bridge.getFluidBlock();
-                    if (fluidBlock != null && fluidBlock.isFluidBlock(null, null, null, be)) {
+                    if (fluidBlock != null && fluidBlock.isFluidBlock(
+                            be.getBlockState(),
+                            be.getLevel(),
+                            be.getBlockPos(),
+                            be
+                    )) {
                         return new BlockFluidCapImpl(fluidBlock, be).getHandler(side);
                     }
                 }
