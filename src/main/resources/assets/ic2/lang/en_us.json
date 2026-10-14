@@ -82,6 +82,7 @@
   "block.ic2.pump": "Pump",
   "block.ic2.solar_distiller": "Solar Distiller",
   "block.ic2.steam_generator": "Steam Boiler",
+  "jei.ic2.category.canner_enrich": "Canner (Fluid Recipes)",
   "block.ic2.item_buffer": "Item Buffer",
   "block.ic2.magnetizer": "Magnetizer",
   "block.ic2.sorting_machine": "Electric Sorting Machine",

@@ -78,6 +78,7 @@
   "block.ic2.pump": "泵",
   "block.ic2.solar_distiller": "太阳能蒸馏机",
   "block.ic2.steam_generator": "蒸汽机",
+  "jei.ic2.category.canner_enrich": "装罐机（流体配方）",
   "block.ic2.item_buffer": "物品缓冲机",
   "block.ic2.magnetizer": "磁化机",
   "block.ic2.sorting_machine": "电动分拣机",

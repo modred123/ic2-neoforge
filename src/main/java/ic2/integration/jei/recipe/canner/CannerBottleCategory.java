@@ -60,9 +60,9 @@ public class CannerBottleCategory implements IRecipeCategory<CannerBottleRecipeW
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, CannerBottleRecipeWrapper recipe, IFocusGroup focuses) {
-        // 坐标取自装罐机 GUI 贴图上的真实槽位（左上=容器、中间=填充物、右上=产物）
+        // Match ContainerCanner and ContainerStandardMachine slot coordinates.
         builder.addSlot(RecipeIngredientRole.INPUT, 41, 17).addItemStacks(recipe.getContainerInputs());
-        builder.addSlot(RecipeIngredientRole.INPUT, 76, 40).addItemStacks(recipe.getFillInputs());
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 116, 14).addItemStack(recipe.getOutput());
+        builder.addSlot(RecipeIngredientRole.INPUT, 80, 44).addItemStacks(recipe.getFillInputs());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 119, 17).addItemStack(recipe.getOutput());
     }
 }

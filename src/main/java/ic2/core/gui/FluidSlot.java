@@ -14,7 +14,6 @@ import ic2.core.GuiIC2;
 import ic2.core.fluid.FluidHandler;
 import ic2.core.gui.GuiElement;
 import ic2.core.init.Localization;
-import ic2.core.util.Util;
 import java.util.List;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -75,7 +74,7 @@ extends GuiElement<FluidSlot> {
         } else {
             Fluid fluid = fs.getFluid();
             if (fluid != null) {
-                ret.add(Component.translatable(Util.getName(fluid).toString()));
+                ret.add(Component.translatable(fluid.getFluidType().getDescriptionId()));
                 ret.add(Component.literal("Amount: " + fs.getAmount() + " " + Localization.translate("ic2.generic.text.mb")));
                 String state = FluidHandler.isGaseous(fluid) ? "Gas" : "Liquid";
                 ret.add(Component.literal("Type: " + state));

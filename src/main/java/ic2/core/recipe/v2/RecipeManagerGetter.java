@@ -23,6 +23,10 @@ implements Recipes.IGetter<T> {
         this.factory = function;
     }
 
+    public T get(RecipeManager recipeManager) {
+        return this.factory.apply(recipeManager);
+    }
+
     @Override
     public T get(Level level) {
         if (level.isClientSide()) {
